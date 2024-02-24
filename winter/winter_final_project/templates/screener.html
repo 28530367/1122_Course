@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} screener {% endblock %}
+{% block content %}
+<script type="text/javascript" src="{% static 'js/DE_screener.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/screener.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/enrichment.js' %}"></script>
+
+<script>csrf_token= "{{ csrf_token }}"</script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/all_page.css' %}">
+
+<!-- views data to js -->
+<div id="homo_miRNA_list" data-json="{{ homo_miRNA_list|safe }}"></div>
+
+<div class="container-fluid text-center">
+    <div class="mx-auto" style="width: 90%;">
+        <div class="card h-100 d-flex justify-content-center">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="nav nav-tabs">
+                            <li class="nav-item">
+                                <a id="type_cancer_nav" class="nav-link active" href="#" onclick="showTab('type_cancer', this)">Type & Cancer</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="survival_analysis_nav" class="nav-link disabled" href="#" onclick="showTab('survival_analysis', this)">Survival Analysis</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="mirna_screener_nav" class="nav-link disabled" href="#" onclick="showTab('mirna_screener', this)">miRNA screener</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="de_screener_nav" class="nav-link disabled" href="#" onclick="showTab('de_screener', this)">DE screener</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="main_output_nav" class="nav-link disabled" href="#" onclick="showTab('main_output', this)">Main output</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="enrichment_analysis_nav" class="nav-link disabled" href="#" onclick="showTab('enrichment_analysis', this)">enrichment analysis</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- type_cancer -->
+                <div id="type_cancer" class="row tab-content">
+                    <div class="col-md-12">
+                        <!-- Select type -->
+                        <div id="radioBtn" class="row py-4 d-flex justify-content-center formOption mx-auto">
+                            <div class="row text-center">
+                                <label class="control-label py-2">Select type : </label>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-3 text-center">
+                                    <a class="btn btn-primary btn-lg active btn-toggle" data-toggle="DE_level" data-title="genes" style="width: 180px;">DE Genes</a>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <a class="btn btn-primary btn-lg notActive btn-toggle" data-toggle="DE_level" data-title="isoforms" style="width: 180px;">DE Isoforms</a>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+                        </div>
+                        <!-- Select a cancer -->
+                        <div class="row py-4 d-flex justify-content-center formOption mx-auto">
+                            <div class="row text-center">
+                                <label class="control-label py-2">Select a cancer : </label>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6 text-center">
+                                    <div id='primary_site_div'>
+                                        <select class="form-control select2-hidden-accessible" id="primary_select" style="width: 100%" name="select_element" tabindex="-1" aria-hidden="true">
+                                            {% for primary_project in primary_project_list %}
+                                            <option value="{{ primary_project.0 }}|{{ primary_project.1 }}">{{ primary_project.0 }} cancer</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+
+                        <!-- next nav button -->
+                        <div class="row py-4">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-secondary mx-auto" style="width: 150px;" onclick="nextTab('survival_analysis', 'survival_analysis_nav')">Next</button>
+                            </div>
+                        </div>
+                          
+                    </div>
+                </div>
+
+                <!-- survival_analysis -->
+                <div id="survival_analysis" class="row tab-content" style="display: none;">
+                    <div class="col-md-12">
+                        <div class="row py-3">
+                            <div class="d-flex justify-content-center">
+                                <div class="form-check form-switch py-3">
+                                  <input class="form-check-input" type="checkbox" id="switch_survival">
+                                  <label class="form-check-label" for="switch_survival">Use Survival Analysis</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="survival_analysis_filter" class="row justify-content-center" style="display: none;">
+                            <div class="py-3 mx-auto formOption">
+                                <div class="row text-center">
+                                    <label class="control-label py-2">Select a stage : </label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3"></div>
+                                    <div class="col-md-6">
+                                        <select class="form-control select2-hidden-accessible" id="stage_select" style="width: 100%" name="stage_element" tabindex="-1" aria-hidden="true">
+                                            <option value="all stage">all stages</option>
+                                            <option value="stage i">stage 1</option>
+                                            <option value="stage ii">stage 2</option>
+                                            <option value="stage iii">stage 3</option>
+                                            <option value="stage iv">stage 4</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3"></div>
+                                </div>
+                            </div>
+                            <div class="py-3 mx-auto formOption">
+                                <div class="row text-center">
+                                    <label class="control-label py-3">Input high and low percentile : </label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3"></div>
+                                    <div class="col-md-3">
+                                        <label for="high_percentile">High percentile:</label>
+                                        <input class="form-control select2-hidden-accessible" type="number" id="high_percentile" name="high_percentile" value="50"/>                                
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="low_percentile">Low percentile:</label>
+                                        <input class="form-control select2-hidden-accessible" type="number" id="low_percentile" name="low_percentile" value="50"/>
+                                    </div>
+                                    <div class="col-md-3"></div>
+                                </div>
+                            </div>
+                            <div class="py-3 mx-auto formOption">
+                                <div class="row text-center">
+                                    <label class="control-label py-3">Input the threshold value of the p-value : </label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3"></div>
+                                    <div class="col-md-3">
+                                        <label  for="c_type_sur">correction : </label>
+                                        <select class="form-control select2-hidden-accessible" name="Correction_sur" id="c_type_sur">
+                                            <option value="None">None</option>
+                                            <option value="FDR">FDR</option>
+                                            <option value="Bonferroni">Bonferroni</option>
+                                        </select>                             
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="p_value">P-value : </label>
+                                        <input class="form-control select2-hidden-accessible" type="number" id="p_value" name="p_value" value="0.05" step="0.05">
+                                    </div>
+                                    <div class="col-md-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        
+                        <!-- next nav button -->
+                        <div class="row py-4">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-secondary mx-auto" style="width: 150px;" onclick="nextTab('mirna_screener', 'mirna_screener_nav')">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- mirna_screener -->
+                <div id="mirna_screener" class="row tab-content" style="display: none;">
+                    <div class="col-md-12 ">
+                        <div class="row py-3">
+                            <div class="d-flex justify-content-center">
+                                <div class="form-check form-switch py-3">
+                                    <input class="form-check-input" type="checkbox" id="switch_miRNA">
+                                    <label class="form-check-label" for="switch_miRNA" >miRNA screener</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mirna_screener_filter" class="row" style="display: none;">
+                            <div class="py-3 mx-auto formOption">
+                                <div class="row py-3 d-flex justify-content-center FormOption">
+                                    <div class="row text-center">
+                                        <label class="control-label py-3">Input miRNA and will search its target genes : </label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div style="margin:0 0 1.2em">
+                                                <textarea id="miRNA_input_area">hsa-miR-21-5p
+                                                    hsa-miR-34a-5p</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="py-3 mx-auto formOption">
+                                <div class='row py-3 d-flex justify-content-center FormOption' id="set_operation_area" style="display: none;">
+                                    <div class="row text-center">
+                                        <label class="control-label py-3"> Whether you want to intersect or union the selected data</label>
+                                    </div>
+                                    <div class="row justify-content-evenly">
+                                        <div class="col-md-2"></div>
+                                        <div class="col-md-2">
+                                            <input type="radio" id="miRNA_union" name="miRNA_set" value="union" checked> 
+                                            <label for="miRNA_union" >union </label>                                
+                                        </div>
+                                        <div class="col-md-2">
+                                            <input type="radio" id="miRNA_intersection" name="miRNA_set" value="intersection" >
+                                            <label for="miRNA_intersection" >intersection </label>
+                                        </div>
+                                        <div class="col-md-2 diff_set">
+                                            <input type="radio" id="miRNA_difference1_2" name="miRNA_set" value="difference1_2" >
+                                            <label for="miRNA_difference1_2" >difference(first - second) </label>
+                                        </div>
+                                        <div class="col-md-2 diff_set">
+                                            <input type="radio" id="miRNA_difference2_1" name="miRNA_set" value="difference2_1" >
+                                            <label for="miRNA_difference2_1" >difference(second - first) </label>
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
+                        <br>
+                        <br>
+                        
+                        <!-- next nav button -->
+                        <div class="row py-4">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-secondary mx-auto" style="width: 150px;" onclick="nextTab('de_screener', 'de_screener_nav')">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- de_screener -->
+                <div id="de_screener" class="row tab-content" style="display: none;">
+                    <div class="col-md-12 ">
+                        <div class="row py-3">
+                            <div class="d-flex justify-content-center">
+                                <div class="form-check form-switch py-3">
+                                    <input class="form-check-input" type="checkbox" id="switch_DE">
+                                    <label class="form-check-label" for="switch_DE" >DE screener</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="de_screener_filter" class="row" style="display: none;">
+                            <div class="py-3 mx-auto formOption">
+                                <div class="row text-center">
+                                    <p>
+                                        Search differentially expressed (DE) genes / [mRNA isoforms] between two conditions (cancer stages)
+                                    </p>
+                                </div>
+                                <div class="row text-center">
+                                    <label class="control-label py-3">select two stages: </label>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-3">
+                                        <b>Condition2</b>
+                                        <div id='c1_div'>
+                                            <select class="form-control select2-hidden-accessible" id='condition1_pre' style='width: 100%' name="DE_filter_elements">
+                                                <option value="stage i|TCGA-LIHC|171">Stage i</option>
+                                                <option value="normal|TCGA-LIHC|50">Normal</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        vs.
+                                    </div>
+                                    <div class="col-md-3">
+                                        <b>Condition1</b>
+                                        <div id='c2_div'>
+                                            <select class="form-control select2-hidden-accessible" id='condition2_pre' style="width: 100%" name="DE_filter_elements">
+                                                <option value="normal|TCGA-LIHC|50">Normal</option>
+                                                <option value="stage i|TCGA-LIHC|171">Stage i</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1"></div>
+                                </div>
+                                <div class="row d-flex justify-content-center py-3">
+                                    <button id="reverseButton" class="btn btn-secondary" type="button" style="width: 200px">Swap the two options</button>
+                                </div>
+                            </div>
+                            <div class="py-3 mx-auto formOption">
+                                <p>Define differential expression :</p>
+                                <div class="mx-auto" style="width: 70%;">
+                                    <div class="col-md-12">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="background-color: #747474;color:#FFFFFF;border-color: #747474;text-align:center;border-top-left-radius:4px;border-top-right-radius:4px;font-size: 14px;">
+                                                        Fold Change of Average FPKM
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 5px; vertical-align: middle; text-align: center;">
+                                                        <div class="input-group" style="display: flex; align-items: center;">
+                                                            <span class="input-group-addon" style="border-right:0;width:35%">
+                                                                Condition2 / Condition1
+                                                            </span>
+                                                            <span class="input-group-addon" style="border-right:0;width:20%;">
+                                                                <select class="form-control select2-hidden-accessible" id="FC_select" style="width: 80%" name="DE_filter_elements" tabindex="-1" aria-hidden="true">
+                                                                    <option>≥</option>
+                                                                    <option>≤</option>
+                                                                </select>
+                                                            </span>
+                                                            
+                                                            <input type="text" class="form-control" id='log2FC_input' name="DE_filter_elements" value="2" style="z-index:0;border-top-right-radius:0;">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="background-color: #747474;color:#FFFFFF;border-color: #747474;text-align:center;border-top-left-radius:4px;border-top-right-radius:4px;font-size: 14px;">
+                                                        Statistical Significance
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td style="padding: 5px; vertical-align: middle; text-align: center;">
+                                                        <div class="input-group" style="display: flex; align-items: center;">
+                                                            <span class="input-group-addon" style="border-right:0;width:20%;">
+                                                                <span style="font-weight: bold">Test</span>
+                                                                <select class="form-control select2-hidden-accessible" id="TEST_select" style="width:90%; margin: 0 auto;" name="DE_filter_elements" tabindex="-1" aria-hidden="true" onchange="select_function()">
+                                                                    <option>KS test</option>
+                                                                    <option selected>T test</option>
+                                                                    <option>U test</option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="input-group-addon" style="border-right:0;width:40%;">
+                                                                <span style="font-weight: bold">Direction</span>
+                                                                <select class="form-control select2-hidden-accessible" id="TESTstates_select" style="width:90%; margin: 0 auto;" name="DE_filter_elements" tabindex="-1" aria-hidden="true">
+                                                                    <option>Greater (Condition2 > Condition1)</option>
+                                                                    <option>Less (Condition2 < Condition1)</option>
+                                                                    <option style="display: none">Two sided (Condition 2 != Condition 1)</option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="input-group-addon" style="border-right:0;width:20%;">
+                                                                <span style="font-weight: bold">Correction</span>
+                                                                <select class="form-control select2-hidden-accessible" id="cor_method" style="width:90%; margin: 0 auto;" name="DE_filter_elements" tabindex="-1" aria-hidden="true" >
+                                                                    <option>None</option>
+                                                                    <option>FDR</option>
+                                                                    <option>Bonferroni</option>
+                                                                </select>
+                                                            </span>
+                                                            <span class="input-group-addon" style="border-right:0;width:20%;">
+                                                                <span style="font-weight: bold">q-value cutoff</span>
+                                                                <input type="text" class="form-control" id='TEST_input' name="DE_filter_elements" value="0.05" style="border-top-right-radius:0;z-index:0;width:90%; margin: 0 auto;">
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        
+                        <!-- search bar -->
+                        <div class="row py-4">
+                            <div class="text-center">
+                                <button type ='button' value = 'search' id = "search_btn" class="btn btn-success" style="width: 300px;" >Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- main_output -->
+                <div id="main_output" class="row tab-content" style="display: none;">
+                    <div class="formOption mx-auto">
+                        <div class="py-3">
+                            <h3>User Input</h3>
+                        </div>
+                        <div class="mx-auto" style="width: 90%;">
+                            <table id="user_input" class="table table-bordered">
+                                <tbody id="user_input_survival_analysis" >
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Stage select </td>
+                                        <td id="stage_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">High percentile </td>
+                                        <td id="high_percent_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Low percentile </td>
+                                        <td id="low_percent_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">correction </td>
+                                        <td id="correction_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">P-value </td>
+                                        <td id="input_pvalue_td"></td>
+                                    </tr>
+                                </tbody>
+                                <tbody id="user_input_miRNA_screener" >
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Input miRNA</td>
+                                        <td id="selected_miRNA_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">miRNA set </td>
+                                        <td id="miRNA_set_td"></td>
+                                    </tr>
+                                </tbody>
+                                <tbody id="user_input_de_screener" >
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Condition2</td>
+                                        <td id="condition2_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Condition1</td>
+                                        <td id="condition1_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Fold Change of Average FPKM (Condition2 / Condition1)</td>
+                                        <td id="fold_change_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Test</td>
+                                        <td id="test_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Direction</td>
+                                        <td id="direction_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">Correction</td>
+                                        <td id="de_correction_td"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background-color: #daffda; font-weight: bold;">q-value cutoff</td>
+                                        <td id="q-value_td"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="formOption mx-auto">
+                        <div id="output_message" class="py-3" style="font-size: xx-large;"></div><br>
+                        <div id = 'output' class="mx-auto" style="width: 90%;">
+                            <table id="output_table" class="table table-bordered " style="width: 100%;"></table>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+
+                <!-- enrichment_analysis -->
+                <div id="enrichment_analysis" class="row tab-content" style="display: none;">
+                    <span >
+                        <h3>enrichment analysis</h3>(Perform the analysis with the results above)
+                    </span>
+                    <br>
+                    <br>
+                    <div width=100% align="center">
+                        <div class="row" style="width: 80%; margin: 0 auto;">
+                            <div class="col-sm-6">
+                                <label>Correction type</label>
+                                <select class="form-control select2-hidden-accessible" id="c_type_enrich" style="width:70%; margin: 0 auto;" name="Correction_enrich" tabindex="-1" aria-hidden="true">
+                                    <option value="None">None</option>
+                                    <option value="FDR">FDR</option>
+                                    <option value="Bonferroni">Bonferroni</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-5">
+                                <label>p-value(cut-off)</label>
+                                <select class="form-control select2-hidden-accessible" id="p-value_enrich" style="width:70%; margin: 0 auto;" name="p-value_enrich" tabindex="-1" aria-hidden="true">
+                                    <option value="0.05">0.05</option>
+                                    <option value="0.01">0.01</option>
+                                    <option value="0.001">0.001</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div style="text-align: center;">
+                            <button type ='button' value = 'search' id="btn_cal" class="btn btn-success" style="width: 30%;">calculate</button>
+                        </div><br>
+                        <div id="enrichment_analysis_user_input" class="formOption mx-auto" style="display: none;">
+                            <div class="py-3">
+                                <h3>User Input</h3>
+                            </div>
+                            <div class="mx-auto" style="width: 90%;">
+                                <table id="enrichment_analysis_user_input_table" class="table table-bordered text-center">
+                                    <tbody>
+                                        <tr>
+                                            <td style="background-color: #daffda; font-weight: bold;">Correction type</td>
+                                            <td id="enrichment_correction"></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="background-color: #daffda; font-weight: bold;">p-value(cut-off)</td>
+                                            <td id="enrichment_p-value"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="enrichment_analysis_output" class="formOption mx-auto" style="display: none;">
+                            <div  class="py-3" >
+                                <h3>Output Table</h3>
+                            </div>
+                            <div id='output' class="mx-auto" style="width: 90%;">
+                                <table id="relate_table" class="table table-bordered" style="width: 100%;"></table> 
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
