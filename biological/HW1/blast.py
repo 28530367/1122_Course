@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # 取得當前工作目錄
-current_directory = os.getcwd()
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
 def bestHit(id, left, right):
     

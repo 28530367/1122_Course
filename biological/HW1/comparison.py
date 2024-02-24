@@ -2,11 +2,15 @@ import pandas as pd
 import os
 
 # 取得當前工作目錄
-current_directory = os.getcwd()
+current_directory = os.path.dirname(os.path.abspath(__file__))
+print(current_directory)
+
+# 'transcript' or 'protein'
+target = 'transcript'
 
 # 讀取csv
-df1 = pd.read_csv(f'{current_directory}/output/Dsim_check_transcript.csv')
-df2 = pd.read_csv(f'{current_directory}/outputAns/Dsim_check_transcript.csv')
+df1 = pd.read_csv(f'{current_directory}/output/Dsim_check_{target}.csv')
+df2 = pd.read_csv(f'{current_directory}/outputAns/Dsim_check_{target}.csv')
 
 df2 = df2[df2['score2'] != '-']
 df1 = df1[df1['score2'].notna()]

@@ -6,7 +6,6 @@ import os
 import random
 from  more_itertools import unique_everseen
 import json
-# from lifelines.statistics import logrank_test
 from tqdm import tqdm, trange
 from django.http import HttpResponse, JsonResponse #匯入http模組
 from django.template.defaulttags import register
@@ -15,7 +14,6 @@ from functools import partial
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from survival_analysis.models import *
 import matplotlib
-# from survival_analysis.survival_analysis_v3 import *
 matplotlib.use('Agg')
 current_path = os.path.dirname(__file__)
 
@@ -131,22 +129,9 @@ def detail_page(request):
             all_transcript.append(i)
     NCBI_gene_summary = Summary.NCBI_gene_summary(gene)
     NCBI_transcript_summary = Summary.NCBI_transcript_summary(all_transcript)
-    # project_primary_dict = Filter.project_primary_dict()[0]
-    # primary_list_all = list(project_primary_dict.values())
-    # number_of_sample = Filter.project_primary_dict()[1]
-    primary_key = input_type[:-1]+'_name'
-    # TEST_column = "%s_%s"%(TEST_select.replace(' ','_'),TESTstates_select.replace(' ','').lower()) if TEST_select else ''
 
-    # condition_FC_qv_list = Filter.filter(input_type,name,primary_key,list(project_primary_dict.keys()),FC_select,FC_input,TEST_column,TEST_input)
-    # primary_list = sorted(list(set([project_primary_dict[x[0]] for x in condition_FC_qv_list])))
-        
-    # for cancer in primary_list:
-    #     condition_FC_qv_list_cancer = []
-    #     for row in condition_FC_qv_list:
-    #         if project_primary_dict[row[0]] == cancer:
-    #             condition_FC_qv_list_cancer += [row]
-        # download_table = Filter.download_table(cancer,condition_FC_qv_list_cancer,name,FC_select,FC_input,TEST_select,TESTstates_select,TEST_input)
-        # request.session["DE_Conditions_%s_%s"%(cancer,"0")] = download_table
+    primary_key = input_type[:-1]+'_name'
+
     stage_dict_gather = {
         'normal' :'normal',
         'stage i' : 'stage_1',
@@ -164,25 +149,12 @@ def detail_page(request):
     primary_stage = OrderedDict()
     primary_condition = OrderedDict()
     project_list = []
-    # primary_list = []
-    # for row in condition_FC_qv_list:
-    #     primary_project = "%s|%s"%(project_primary_dict[row[0]],row[0])
-    #     c1_pair = "%s(%s_%s)"%(stage_dict_gather[row[1]],stage_Arabic_dict[row[1]],stage_Arabic_dict[row[2]])
-    #     c2_pair = "%s(%s_%s)"%(stage_dict_gather[row[2]],stage_Arabic_dict[row[1]],stage_Arabic_dict[row[2]])
-    #     if primary_project not in primary_stage:
-    #         primary_stage[primary_project] = [[c1_pair,c2_pair]]
-    #         primary_condition[primary_project] = [row[1],row[2]]
-    #     else:
-    #         primary_stage[primary_project] += [[c1_pair,c2_pair]]
-    #         primary_condition[primary_project] += [row[1],row[2]]
-    #     if row[0] not in project_list:
-    #         project_list += [row[0]]
     primary_condition = OrderedDict(sorted(primary_condition.items()))
     primary_stage = OrderedDict(sorted(primary_stage.items()))
 
     condition_list = list(primary_condition.values())
     group_name = list(primary_stage.values())
-    # condition_list = list(map(lambda x:sorted(x),list(primary_stage.values())))
+
     boxplot_data,primary_nodata = Boxplot.boxplot_data(primary_stage,input_type,name)
     print(boxplot_data)
     return render(request, 'survival_analysis_detail.html', locals())
@@ -196,8 +168,7 @@ def survival_plot(request):
     Low_Percentile = request.POST["Low_Percentile"]
     High_Percentile = request.POST["High_Percentile"]
     stage = request.POST["stage"]
-    # days = request.POST["days"]
-    # img_str = survival_plot_realtime(project, primary_site, input_type, name ,'0', Low_Percentile, High_Percentile, stage, days)
+
     img_str = survival_plot_realtime(project, primary_site, input_type, name ,'0', Low_Percentile, High_Percentile, stage)
     return JsonResponse({"img_str": img_str})
 
@@ -262,8 +233,6 @@ def survival_analysis(request):
         # print(T1,E1,T2,E2)
         if (T2 != [] and E2 != []) and (T1 != [] and E1 != []):
             Survival_plot.survival_plot(T1,E1,T2,E2,GT_input,primary_site,random_id,Low_Percentile,High_Percentile,max(T1+T2),'all stage')
-            # survival_download = Survival_plot.survival_download(T1,E1,T2,E2,high_case,low_case,high_FPKM,low_FPKM,GT_input,primary_site,random_id,Low_Percentile,High_Percentile,'all stage')
-            # request.session["Survival_Profile_%s_%s_%s_%s"%(primary_site.replace('(','').replace(')',''),Low_Percentile,High_Percentile,random_id)] = survival_download
 
         else:
             survival_str = ' Survival analysis is not available for '+GT_input+' since more than half of the samples have zero expression.'
@@ -305,13 +274,6 @@ def cal_pvalue_main(request):
         # print(result_list_m)
         result_list = list(result_list_m)
     
-    ## original
-    # # for i in tqdm(range(len(all_cancer_data))):
-    # for i in tqdm(range(1000)):
-    #     p_value, max_time = organize_and_cal_pvalue(all_cancer_data[i], low_percent, high_percent)
-    #     if p_value <= float(input_pvalue):
-    #         result_list.append({"name":all_cancer_data[i][0], "logrank_p_value":p_value, "max_time": max_time})
-    # # print(f"result_list: {result_list}")
     str_colmns = ','.join(stage_list)
     return JsonResponse({"result": result_list})
 
