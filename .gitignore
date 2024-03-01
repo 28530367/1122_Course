@@ -3,9 +3,8 @@
 **/Downloads/
 
 # winter
-!/winter/winter_final_project/*
+!/winter/winter_final_project/**
 /winter/**/__pycache__/
-/winter/**/Downloads/
 /winter/**/db.sqlite3
 
 
