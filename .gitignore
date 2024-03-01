@@ -7,6 +7,8 @@
 /winter/**/__pycache__/
 /winter/**/db.sqlite3
 
-
+# biological
+!/biological/HW1/**
+/biological/**/Downloads/
 
 
