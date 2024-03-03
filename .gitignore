@@ -11,4 +11,6 @@
 !/biological/HW1/**
 /biological/**/Downloads/
 
-
+# cancerAnalysis
+!/cancerAnalysis/**
+/cancerAnalysis/**/Downloads/
