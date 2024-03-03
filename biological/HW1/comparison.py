@@ -97,5 +97,32 @@ def dsimClassification():
     print("\n不同行 Ans:")
     print(different_rows_df2)
 
+def dsimOrtholog():
+    # 'none' 'unique' 'multiple'
+    type = 'multiple'
+
+    # 讀取csv
+    df1 = pd.read_csv(f'{current_directory}/output/Dsim_ortholog_{type}.csv')
+    df2 = pd.read_csv(f'{current_directory}/outputAns/Dsim_ortholog_{type}.csv')
+
+    # # 找出不同行
+    # different_rows = pd.concat([df1, df2]).drop_duplicates(keep=False)
+
+    # print("\n不同行:")
+    # print(different_rows)
+
+    # 使用 merge 方法，指定 indicator=True
+    merged_df = pd.merge(df1, df2, how='outer', indicator=True)
+
+    # 找出不同的行
+    different_rows_df1 = merged_df[merged_df['_merge'] == 'left_only'].drop('_merge', axis=1)
+    different_rows_df2 = merged_df[merged_df['_merge'] == 'right_only'].drop('_merge', axis=1)
+
+    print("\n不同行 Mine:")
+    print(different_rows_df1)
+
+    print("\n不同行 Ans:")
+    print(different_rows_df2)
+
 if __name__ == "__main__":
-    dsimClassification()
+    dsimOrtholog()

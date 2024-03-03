@@ -66,23 +66,23 @@ if __name__ == "__main__":
     dsim_file_path = os.path.join(current_directory, f"output/{file_name}")
     dsimClassification_df.to_csv(dsim_file_path, columns=['NCBI_GeneID', 'Gene_Type', 'Ortholog_Num', 'Dmel ID', 'Type'] , index=False)
 
-    
-    # filtered_dismCheck_df = drop_dismCheck_df[drop_dismCheck_df['Type'] == 1]
 
-    # grouped_dismCheck_df = filtered_dismCheck_df.groupby(['NCBI_GeneID']).agg({'Dmel ID': list_of_dmels}).reset_index()
-    # grouped_dismCheck_df['Ortholog_Num'] = grouped_dismCheck_df['Dmel ID'].apply(len)
-    # # print(grouped_dismCheck_df)
+    dsimOrtholog_unique_df = dsimClassification_df[dsimClassification_df['Ortholog_Num'] == 1]
+    dsimOrtholog_unique_df['Result Type'] = 1
+    # print(dsimOrtholog_unique_df)
+    dsimOrtholog_unique_df.to_csv(f"{current_directory}/output/Dsim_ortholog_unique.csv", columns=['NCBI_GeneID', 'Gene_Type', 'Ortholog_Num', 'Dmel ID', 'Type', 'Result Type'] , index=False)
 
-    # dismTable = readDismTable()
-    # # print(dismTable)
+    dsimOrtholog_none_df = dsimClassification_df[dsimClassification_df['Ortholog_Num'] == 0]
+    dsimOrtholog_none_df['Result Type'] = 3
+    dsimOrtholog_none_df['Dmel ID'].fillna('-', inplace=True)
+    dsimOrtholog_none_df['Type'].fillna('-', inplace=True)
+    # print(dsimOrtholog_none_df)
+    dsimOrtholog_none_df.to_csv(f"{current_directory}/output/Dsim_ortholog_none.csv", columns=['NCBI_GeneID', 'Gene_Type', 'Ortholog_Num', 'Dmel ID', 'Type', 'Result Type'] , index=False)
 
-    # dsim_classification_df = pd.merge(dismTable, grouped_dismCheck_df, on='NCBI_GeneID', how='left')
-    # dsim_classification_df['Ortholog_Num'].fillna(0, inplace=True)
-    # dsim_classification_df = dsim_classification_df.sort_values(by='NCBI_GeneID')
-    # print(dsim_classification_df)
-
-
-
+    dsimOrtholog_mulitple_df = dsimClassification_df[dsimClassification_df['Ortholog_Num'] > 1]
+    dsimOrtholog_mulitple_df['Result Type'] = 2
+    # print(dsimOrtholog_mulitple_df)
+    dsimOrtholog_mulitple_df.to_csv(f"{current_directory}/output/Dsim_ortholog_multiple.csv", columns=['NCBI_GeneID', 'Gene_Type', 'Ortholog_Num', 'Dmel ID', 'Type', 'Result Type'] , index=False)
 
 
     # 記錄結束時間

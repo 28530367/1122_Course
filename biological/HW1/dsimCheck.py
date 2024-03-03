@@ -93,11 +93,12 @@ def dsim_check_csv(id, input_df):
     NameList_df = readFa(id)
     merge_df = pd.merge(input_df, NameList_df, on='Dsim_x', how='outer')
 
-
     dsimGeneType_df, dsimTable_df, dmelTable_df = dsimCkeckReadTable(id) 
     dismCheck_df = pd.merge(merge_df, dsimGeneType_df, on='Dsim_x', how='left')
     dismCheck_df = pd.merge(dismCheck_df, dmelTable_df, on='Dmel', how='left')
     dismCheck_df = pd.merge(dismCheck_df, dsimTable_df, on='Dsim_y', how='left')
+
+    dismCheck_df.drop_duplicates(inplace=True)
 
     # type 1~4
     dismCheck_df['type'] = np.where((dismCheck_df['Dsim_x'] == dismCheck_df['Dsim_y']) & (~dismCheck_df['Dsim_y'].isna()), 1, 2)
@@ -105,7 +106,7 @@ def dsim_check_csv(id, input_df):
     dismCheck_df.loc[dismCheck_df['Dmel'].isna(), 'type'] = 4
 
     dismCheck_df.rename(columns={'Dsim_x': 'Dsim', 'E_value_x': 'evalue1', 'Score_x': 'score1', 'query cover_x': 'qcover1', 'identity_x': 'identity1', 'E_value_y': 'evalue2', 'Score_y': 'score2', 'query cover_y': 'qcover2', 'identity_y': 'identity2', 'Dsim_y': 'hit_back', 'type': 'Type'}, inplace=True)
-
+    
     dismCheckCsv_df = dismCheck_df.fillna('-')
     dismCheckCsv_df = dismCheckCsv_df.sort_values(by='Gene name', ascending=False)
     # 輸出csv
@@ -120,7 +121,7 @@ def dsim_check_csv(id, input_df):
 
 def readFa(id):
     file_name = f"Dsim_for_blast{id}.fa"
-    fasta_file_path = f"input/{file_name}"
+    fasta_file_path = f"{current_directory}/input/{file_name}"
     sequences = SeqIO.parse(fasta_file_path, 'fasta')
 
     name_lsit = {}
@@ -147,8 +148,18 @@ if __name__ == "__main__":
 
     dismCheck_df = dsim_check_csv(id, mergeOnDmel_df)
 
+    # 輸入
+    id = 'p'
 
+    # 記錄開始時間
+    start_time = time.time()
 
+    Dsim_to_Dmel = bestHit(id, 'Dsim', 'Dmel')
+    Dmel_to_Dsim = bestHit(id, 'Dmel', 'Dsim')
+
+    mergeOnDmel_df = pd.merge(Dsim_to_Dmel, Dmel_to_Dsim, on='Dmel', how='left')
+
+    dismCheck_df = dsim_check_csv(id, mergeOnDmel_df)
 
     # 記錄結束時間
     end_time = time.time()
