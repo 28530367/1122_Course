@@ -17,19 +17,32 @@ def outputCSV(df, file_name):
 
 if __name__ == "__main__":
     pathwayData_df = readCSV('pathway')
+    
+    column_rename_dict = {'Gene.primaryIdentifier': 'Gene Primary Identifier',
+                          'Gene.symbol': 'Gene Symbol',
+                          'Gene.proteins.primaryAccession': 'Proteins Primary Accession',
+                          'Gene.proteins.primaryIdentifier': 'Proteins Primary Identifier',
+                          'Gene.proteins.pathways.identifier': 'Pathways Identifier',
+                          'Gene.proteins.pathways.name': 'Pathways Name',
+                          'Gene.proteins.pathways.dataSets.name': 'Data Sets Name'
+                          }
+    pathwayData_df.rename(columns=column_rename_dict, inplace=True)
 
-    pathwayData_df[['Gene.proteins.primaryIdentifier', 'Species']] = pathwayData_df['Gene.proteins.primaryIdentifier'].str.split('_', expand=True)
+    pathwayData_df['Species'] = pathwayData_df['Proteins Primary Identifier'].str.split('_', expand=True)[1]
 
-    # 分離 HUMAN 與其他物種
+    ## 分離 HUMAN 與其他物種
     human_df = pathwayData_df[pathwayData_df['Species'].str.contains('HUMAN')]
-    others_df = pathwayData_df[~pathwayData_df['Species'].str.contains('HUMAN')]
+    # others_df = pathwayData_df[~pathwayData_df['Species'].str.contains('HUMAN')]
 
     # groupby
-    quantity_df = human_df.groupby('Gene.proteins.pathways.name').size().reset_index(name='quantity')
-    humanArrangement_df = human_df.groupby('Gene.proteins.pathways.name').agg({'Gene.primaryIdentifier': ', '.join, 'Gene.symbol': ', '.join, 'Gene.proteins.primaryAccession': ', '.join, 'Gene.proteins.primaryIdentifier': ', '.join, 'Gene.proteins.pathways.identifier': ', '.join}).reset_index()
+    quantity_df = human_df.groupby('Pathways Name').size().reset_index(name='Quantity')
+    humanArrangement_df = human_df.groupby('Pathways Name').agg({'Gene Symbol': ', '.join}).reset_index()
     
     # merge
-    humanArrangement_df = humanArrangement_df.merge(quantity_df, on='Gene.proteins.pathways.name')
+    humanArrangement_df = humanArrangement_df.merge(quantity_df, on='Pathways Name')
+
+    target_column_list = ['Pathways Name', 'Quantity', 'Gene Symbol']
+    humanArrangement_df = humanArrangement_df[target_column_list]
 
     # 輸出csv
     outputCSV(humanArrangement_df, 'human_pathwayArrangement.csv')

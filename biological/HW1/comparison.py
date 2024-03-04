@@ -99,7 +99,7 @@ def dsimClassification():
 
 def dsimOrtholog():
     # 'none' 'unique' 'multiple'
-    type = 'multiple'
+    type = 'none'
 
     # 讀取csv
     df1 = pd.read_csv(f'{current_directory}/output/Dsim_ortholog_{type}.csv')

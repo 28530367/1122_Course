@@ -35,23 +35,24 @@ query.add_constraint("proteins.pathways.name", "IS NOT NULL", code="A")
 # query.set_logic("A")
 
 allData = {}
-allData["primaryIdentifier"] = []
-allData["symbol"] = []
-allData["proteins.primaryAccession"] = []
-allData["proteins.primaryIdentifier"] = []
-allData["proteins.pathways.identifier"] = []
-allData["proteins.pathways.name"] = []
-allData["proteins.pathways.dataSets.name"] = []
+allData["Gene.primaryIdentifier"] = []
+allData["Gene.symbol"] = []
+allData["Gene.proteins.primaryAccession"] = []
+allData["Gene.proteins.primaryIdentifier"] = []
+allData["Gene.proteins.pathways.identifier"] = []
+allData["Gene.proteins.pathways.name"] = []
+allData["Gene.proteins.pathways.dataSets.name"] = []
 
 for row in query.rows():
-    allData["primaryIdentifier"].append(row["primaryIdentifier"])
-    allData["symbol"].append(row["symbol"])
-    allData["proteins.primaryAccession"].append(row["proteins.primaryAccession"])
-    allData["proteins.primaryIdentifier"].append(row["proteins.primaryIdentifier"])
-    allData["proteins.pathways.identifier"].append(row["proteins.pathways.identifier"])
-    allData["proteins.pathways.name"].append(row["proteins.pathways.name"])
-    allData["proteins.pathways.dataSets.name"].append(row["proteins.pathways.dataSets.name"])
+    allData["Gene.primaryIdentifier"].append(row["primaryIdentifier"])
+    allData["Gene.symbol"].append(row["symbol"])
+    allData["Gene.proteins.primaryAccession"].append(row["proteins.primaryAccession"])
+    allData["Gene.proteins.primaryIdentifier"].append(row["proteins.primaryIdentifier"])
+    allData["Gene.proteins.pathways.identifier"].append(row["proteins.pathways.identifier"])
+    allData["Gene.proteins.pathways.name"].append(row["proteins.pathways.name"])
+    allData["Gene.proteins.pathways.dataSets.name"].append(row["proteins.pathways.dataSets.name"])
 
 allData_df = pd.DataFrame(allData)
 print(allData_df)
 allData_df.to_csv("humanmine_pathway_AllData.csv", index=False)
+
