@@ -4,19 +4,19 @@ import os
 # 取得當前工作目錄
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-def readCSV(file_type):
-    filePath = f"{current_directory}/humanmine_{file_type}_AllData.csv"
+def readCSV(file_name):
+    filePath = f"{current_directory}/{file_name}"
     fileData_df = pd.read_csv(filePath)
 
     return fileData_df
 
-def outputCSV(df, file_name):
+def outputCSV(output_df, file_name):
     filePath = f"{current_directory}/{file_name}"
-    df.to_csv(filePath, index=False)
+    output_df.to_csv(filePath, index=False)
     print('CSV SUCCESS!!')
 
 if __name__ == "__main__":
-    pathwayData_df = readCSV('pathway')
+    pathwayData_df = readCSV('humanmine_pathway_AllData.csv')
     
     column_rename_dict = {'Gene.primaryIdentifier': 'Gene Primary Identifier',
                           'Gene.symbol': 'Gene Symbol',
@@ -26,6 +26,7 @@ if __name__ == "__main__":
                           'Gene.proteins.pathways.name': 'Pathways Name',
                           'Gene.proteins.pathways.dataSets.name': 'Data Sets Name'
                           }
+    
     pathwayData_df.rename(columns=column_rename_dict, inplace=True)
 
     pathwayData_df['Species'] = pathwayData_df['Proteins Primary Identifier'].str.split('_', expand=True)[1]
