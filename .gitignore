@@ -14,3 +14,4 @@
 # cancerAnalysis
 !/cancerAnalysis/**
 /cancerAnalysis/**/Downloads/
+/cancerAnalysis/humanmine_GO-terms_AllData.csv
