@@ -35,6 +35,10 @@ if __name__ == "__main__":
     human_df = pathwayData_df[pathwayData_df['Species'].str.contains('HUMAN')]
     # others_df = pathwayData_df[~pathwayData_df['Species'].str.contains('HUMAN')]
 
+    drop_column_list = ['Gene Primary Identifier', 'Proteins Primary Accession', 'Proteins Primary Identifier', 'Pathways Identifier', 'Data Sets Name', 'Species']
+    human_df = human_df.drop(columns=drop_column_list)
+    human_df = human_df.drop_duplicates()
+
     # groupby
     quantity_df = human_df.groupby('Pathways Name').size().reset_index(name='Quantity')
     humanArrangement_df = human_df.groupby('Pathways Name').agg({'Gene Symbol': ', '.join}).reset_index()
