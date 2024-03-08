@@ -29,9 +29,12 @@ if __name__ == "__main__":
     
     data_df = readData_df.rename(columns=column_rename_dict)
 
-    drop_column_list = ['Gene Primary Identifier', 'Gene Name', 'Ontology Term Identifier', 'Ontology Term Name', 'Organism Short Name',]
+    drop_column_list = ['Gene Primary Identifier', 'Gene Name', 'Ontology Term Identifier', 'Ontology Term Name', 'Organism Short Name']
     data_df = data_df.drop(columns=drop_column_list)
+
+    print('before drop_duplicates:', len(data_df))
     data_df = data_df.drop_duplicates()
+    print('after drop_duplicates:', len(data_df))
 
     # groupby
     quantity_df = data_df.groupby('Parents Name').size().reset_index(name='Quantity')

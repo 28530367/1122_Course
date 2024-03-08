@@ -37,7 +37,10 @@ if __name__ == "__main__":
 
     drop_column_list = ['Gene Primary Identifier', 'Proteins Primary Accession', 'Proteins Primary Identifier', 'Pathways Identifier', 'Data Sets Name', 'Species']
     human_df = human_df.drop(columns=drop_column_list)
+
+    print('before drop_duplicates:', len(human_df))
     human_df = human_df.drop_duplicates()
+    print('after drop_duplicates:', len(human_df))
 
     # groupby
     quantity_df = human_df.groupby('Pathways Name').size().reset_index(name='Quantity')
@@ -50,4 +53,4 @@ if __name__ == "__main__":
     humanArrangement_df = humanArrangement_df[target_column_list]
 
     # 輸出csv
-    outputCSV(humanArrangement_df, 'human_pathwayArrangement.csv')
+    outputCSV(humanArrangement_df, 'humanmine_pathway_arrangement.csv')
