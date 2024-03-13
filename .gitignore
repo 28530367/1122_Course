@@ -15,3 +15,4 @@
 !/cancerAnalysis/**
 /cancerAnalysis/**/Downloads/
 /cancerAnalysis/humanmine_GO-terms_AllData.csv
+/cancerAnalysis/humanmine_Disease-Expression_AllData.csv
