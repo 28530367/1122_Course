@@ -11,6 +11,11 @@
 !/biological/HW1/**
 /biological/**/Downloads/
 
+!/biological/HW2/**
+/biological/**/Downloads/
+/biological/HW2/data/Dmel/genomic.gff
+/biological/HW2/data/Dsim/genomic.gff
+
 # cancerAnalysis
 !/cancerAnalysis/**
 /cancerAnalysis/**/Downloads/
