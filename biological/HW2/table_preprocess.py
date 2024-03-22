@@ -125,7 +125,7 @@ def pr_tr_pair_represent(target, pr_tr_pair_all_df, csv = False):
     pr_tr_pair_all_df['Transcript Accession Float'] = pr_tr_pair_all_df['Transcript Accession'].apply(extract_float_from_accession)
     # print(pr_tr_pair_all_df)
 
-    # 按照 'Protein_length', 'Transcript_length', 'Protein Accession Float'做篩選
+    # 按照 'Protein_length', 'Transcript_length', 'Protein Accession Float' 做篩選
     max_Protein_length = pr_tr_pair_all_df.groupby('NCBI GeneID')['Protein_length'].transform('max')
     filter1_df = pr_tr_pair_all_df[pr_tr_pair_all_df['Protein_length'] == max_Protein_length]
 
@@ -143,11 +143,35 @@ def pr_tr_pair_represent(target, pr_tr_pair_all_df, csv = False):
         pr_tr_pair_represent_df.to_csv(pr_tr_pair_represent_df_path, index=False)
     return pr_tr_pair_represent_df
 
+def transcript_represent(target, transcript_length_df, csv = False):
+    def extract_float_from_accession(accession):
+        match = re.search(r'\d+\.\d+', accession)
+        return float(match.group())
+    
+    transcript_length_df['Transcript Accession Float'] = transcript_length_df['Transcript Accession'].apply(extract_float_from_accession)
+
+    # 按照 'Transcript_length', 'Transcript_Accession_Float' 做篩選
+    max_Transcript_length = transcript_length_df.groupby('NCBI GeneID')['Transcript_length'].transform('max')
+    filter1_df = transcript_length_df[transcript_length_df['Transcript_length'] == max_Transcript_length]
+
+    min_Transcript_Accession_Float = filter1_df.groupby('NCBI GeneID')['Transcript Accession Float'].transform('min')
+    transcript_represent_df = filter1_df[filter1_df['Transcript Accession Float'] == min_Transcript_Accession_Float]
+    transcript_represent_df = transcript_represent_df[['NCBI GeneID', 'Transcript Accession', 'Transcript_length']]
+
+    if csv == True:
+        # 輸出中繼檔 transcript_represent.csv
+        transcript_represent_df_path = f"{current_directory}/tmp/{target}/transcript_represent.csv"
+        transcript_represent_df.to_csv(transcript_represent_df_path, index=False)
+    return transcript_represent_df
+
 if __name__ == "__main__":
     target = "Dmel"
-    protein_length_df = protein_length_table(target, True)
-    transcript_length_df = transcript_length_table(target, True)
-    protein_transcript_pair_df = protein_transcript_pair(target, True) 
-    pr_tr_pair_all_df = pr_tr_pair_all(target, protein_length_df, transcript_length_df, protein_transcript_pair_df, True)
+    protein_length_df = protein_length_table(target)
+    transcript_length_df = transcript_length_table(target)
+    protein_transcript_pair_df = protein_transcript_pair(target) 
+    pr_tr_pair_all_df = pr_tr_pair_all(target, protein_length_df, transcript_length_df, protein_transcript_pair_df)
 
-    pr_tr_pair_represent_df = pr_tr_pair_represent(target, pr_tr_pair_all_df, True)
+    pr_tr_pair_represent_df = pr_tr_pair_represent(target, pr_tr_pair_all_df)
+
+    transcript_represent_df = transcript_represent(target, transcript_length_df, True)
+    print(transcript_represent_df)
